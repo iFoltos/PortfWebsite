@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfólió - Tervezés alatt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            transition: background 0.3s;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        /* Glow effect */
+        .mouse-glow {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, rgba(102, 126, 234, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            display: none;
+        }
+
+        body.dark-mode .mouse-glow {
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0) 70%);
+        }
+
+        /* Animált részecskék */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .particle svg {
+            filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5));
+        }
+
+        body.dark-mode .particle svg {
+            filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .header-top {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .dark-mode-toggle {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.3em;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: rgba(30, 30, 50, 0.9);
+            color: #fbbf24;
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            animation: fadeIn 0.8s ease-in;
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode .container {
+            background: rgba(26, 26, 46, 0.95);
+        }
+
+        body.dark-mode h1,
+        body.dark-mode .subtitle,
+        body.dark-mode .description {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .description {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode input[type="email"] {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border-color: #667eea;
+        }
+
+        body.dark-mode input[type="email"]::placeholder {
+            color: #888;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .description {
+            font-size: 1em;
+            color: #888;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .email-section {
+            margin-bottom: 40px;
+        }
+
+        .email-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="email"] {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .social-links a {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f0f0f0;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 1.5em;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .message {
+            margin-top: 15px;
+            min-height: 20px;
+            font-size: 0.9em;
+        }
+
+        .success {
+            color: #10b981;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        .countdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .countdown-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        body.dark-mode .countdown-item {
+            background: linear-gradient(135deg, #8b5cf6 0%, #667eea 100%);
+        }
+
+        .countdown-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .countdown-label {
+            font-size: 0.8em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .progress-section {
+            margin: 30px 0;
+        }
+
+        .progress-label {
+            text-align: left;
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        body.dark-mode .progress-label {
+            color: #b0b0b0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        body.dark-mode .progress-bar {
+            background: #333;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            animation: fillProgress 2s ease-out;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            animation: fillProgress 2s ease-out;
+        }
+
+        @keyframes fillProgress {
+            from {
+                width: 0;
+            }
+            to {
+                width: 65%;
+            }
+        }
+
+        /* Typing animation */
+        .typing-text {
+            border-right: 2px solid #667eea;
+            animation: typing 3.5s steps(40, end), blink 0.75s step-end infinite;
+            white-space: nowrap;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        body.dark-mode .typing-text {
+            border-right-color: #8b5cf6;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink {
+            from, to { border-color: transparent; }
+            50% { border-color: #667eea; }
+        }
+
+        body.dark-mode @keyframes blink {
+            from, to { border-color: transparent; }
+            50% { border-color: #8b5cf6; }
+        }
+
+        /* Feature cards */
+        .features-section {
+            margin: 40px 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #f0f4ff 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+            opacity: 0;
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+
+        body.dark-mode .feature-card {
+            background: linear-gradient(135deg, #2a2d4a 0%, #1e2139 100%);
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        body.dark-mode .feature-title {
+            color: #e0e0e0;
+        }
+
+        .feature-text {
+            font-size: 0.75em;
+            color: #666;
+        }
+
+        body.dark-mode .feature-text {
+            color: #b0b0b0;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Language switcher */
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .language-switcher {
+            background: rgba(30, 30, 50, 0.9);
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 50px;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Floating subscribe button */
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            animation: pulse 2s infinite;
+            z-index: 100;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4), 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            50% { box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4), 0 0 0 15px rgba(102, 126, 234, 0); }
+        }
+
+        /* Social media hover cards */
+        .social-item {
+            position: relative;
+            display: inline-block;
+        }
+
+        .social-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            margin-bottom: 8px;
+        }
+
+        body.dark-mode .social-tooltip {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .social-item:hover .social-tooltip {
+            opacity: 1;
+        }
+
+        .social-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #333;
+        }
+
+        body.dark-mode .social-tooltip::after {
+            border-top-color: #e0e0e0;
+        }
+
+        /* Progress counter animation */
+        .progress-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        body.dark-mode .progress-number {
+            color: #8b5cf6;
+        }
+    </style>
+</head>
+<body>
+    <div class="mouse-glow" id="mouseGlow"></div>
+
+    <div class="language-switcher">
+        <button class="lang-btn active" onclick="switchLanguage('hu')">🇭🇺 HU</button>
+        <button class="lang-btn" onclick="switchLanguage('en')">🇬🇧 EN</button>
+    </div>
+
+    <div class="header-top">
+        <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+    </div>
+
+    <button class="floating-btn" onclick="scrollToEmail()">📧</button>
+
+    <div class="container">
+        <div class="icon">🚀</div>
+        <h1><span class="typing-text" id="typingTitle">Tervezés alatt!</span></h1>
+        <p class="subtitle" id="subtitle">Portfólió weboldal</p>
+        
+        <div class="features-section">
+            <div class="feature-card">
+                <div class="feature-icon">💼</div>
+                <div class="feature-title" id="feat1Title">Projektek</div>
+                <div class="feature-text" id="feat1Text">Összes munkám egy helyen</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title" id="feat2Title">Készségek</div>
+                <div class="feature-text" id="feat2Text">Technológiák és tapasztalat</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👨‍💼</div>
+                <div class="feature-title" id="feat3Title">Rólam</div>
+                <div class="feature-text" id="feat3Text">Ki vagyok és mit csinálok</div>
+            </div>
+        </div>
+        
+        <div class="countdown">
+            <div class="countdown-item">
+                <span class="countdown-number" id="days">0</span>
+                <span class="countdown-label" id="daysLabel">Nap</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-number" id="hours">0</span>
+                <span class="countdown-label" id="hoursLabel">Óra</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-number" id="minutes">0</span>
+                <span class="countdown-label" id="minutesLabel">Perc</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-number" id="seconds">0</span>
+                <span class="countdown-label" id="secondsLabel">Másodperc</span>
+            </div>
+        </div>
+
+        <p class="description" id="description">
+            Dolgozom egy csodálatos portfólióm elkészítésén. 
+            Hamarosan nagy dolgok jönnek! 
+            Legyen első, aki értesülsz az indulásról.
+        </p>
+
+        <div class="progress-section">
+            <div class="progress-label" id="progressLabel">Fejlesztés: <span class="progress-number" id="progressNumber">0</span>% kész</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="email-section" id="emailSection">
+            <div class="email-input">
+                <input 
+                    type="email" 
+                    id="emailInput" 
+                    placeholder="Add meg az email-ed" 
+                    required
+                >
+                <button onclick="subscribeEmail()" id="subscribeBtn">Értesítés</button>
+            </div>
+            <div class="message" id="message"></div>
+        </div>
+
+        <div class="social-links">
+            <div class="social-item">
+                <a href="https://www.linkedin.com/in/your-profile" title="LinkedIn" target="_blank">💼</a>
+                <div class="social-tooltip">@linkedin</div>
+            </div>
+            <div class="social-item">
+                <a href="https://www.github.com/your-profile" title="GitHub" target="_blank">💻</a>
+                <div class="social-tooltip">@github</div>
+            </div>
+            <div class="social-item">
+                <a href="https://www.twitter.com/your-profile" title="Twitter" target="_blank">🐦</a>
+                <div class="social-tooltip">@twitter</div>
+            </div>
+            <div class="social-item">
+                <a href="mailto:your-email@example.com" title="Email">✉️</a>
+                <div class="social-tooltip">Email</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Nyelvek
+        const translations = {
+            hu: {
+                typingTitle: 'Tervezés alatt!',
+                subtitle: 'Portfólió weboldal',
+                feat1Title: 'Projektek',
+                feat1Text: 'Összes munkám egy helyen',
+                feat2Title: 'Készségek',
+                feat2Text: 'Technológiák és tapasztalat',
+                feat3Title: 'Rólam',
+                feat3Text: 'Ki vagyok és mit csinálok',
+                daysLabel: 'Nap',
+                hoursLabel: 'Óra',
+                minutesLabel: 'Perc',
+                secondsLabel: 'Másodperc',
+                description: 'Dolgozom egy csodálatos portfólióm elkészítésén. Hamarosan nagy dolgok jönnek! Legyen első, aki értesülsz az indulásról.',
+                progressLabel: 'Fejlesztés: ',
+                percentReady: '% kész',
+                emailPlaceholder: 'Add meg az email-ed',
+                subscribeBtn: 'Értesítés',
+                emailSuccess: '✓ Köszönöm! Hamarosan felvesszük veled a kapcsolatot.',
+                emailError: 'Kérlek add meg a helyes email-t!',
+                emailEmpty: 'Kérlek add meg az email-ed!'
+            },
+            en: {
+                typingTitle: 'Coming Soon!',
+                subtitle: 'Portfolio website',
+                feat1Title: 'Projects',
+                feat1Text: 'All my work in one place',
+                feat2Title: 'Skills',
+                feat2Text: 'Technologies and experience',
+                feat3Title: 'About',
+                feat3Text: 'Who I am and what I do',
+                daysLabel: 'Days',
+                hoursLabel: 'Hours',
+                minutesLabel: 'Minutes',
+                secondsLabel: 'Seconds',
+                description: 'I\'m working on an amazing portfolio. Big things coming soon! Be the first to know when it launches.',
+                progressLabel: 'Development: ',
+                percentReady: '% complete',
+                emailPlaceholder: 'Enter your email',
+                subscribeBtn: 'Notify',
+                emailSuccess: '✓ Thank you! We\'ll be in touch soon.',
+                emailError: 'Please enter a valid email!',
+                emailEmpty: 'Please enter your email!'
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('language') || 'hu';
+
+        // Language switcher
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            
+            // Update buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="switchLanguage('${lang}')"]`).classList.add('active');
+            
+            // Update text
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+            document.getElementById('typingTitle').textContent = t.typingTitle;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('feat1Title').textContent = t.feat1Title;
+            document.getElementById('feat1Text').textContent = t.feat1Text;
+            document.getElementById('feat2Title').textContent = t.feat2Title;
+            document.getElementById('feat2Text').textContent = t.feat2Text;
+            document.getElementById('feat3Title').textContent = t.feat3Title;
+            document.getElementById('feat3Text').textContent = t.feat3Text;
+            document.getElementById('daysLabel').textContent = t.daysLabel;
+            document.getElementById('hoursLabel').textContent = t.hoursLabel;
+            document.getElementById('minutesLabel').textContent = t.minutesLabel;
+            document.getElementById('secondsLabel').textContent = t.secondsLabel;
+            document.getElementById('description').textContent = t.description;
+            document.getElementById('emailInput').placeholder = t.emailPlaceholder;
+            document.getElementById('subscribeBtn').textContent = t.subscribeBtn;
+        }
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            const button = document.querySelector('.dark-mode-toggle');
+            button.textContent = isDarkMode ? '☀️' : '🌙';
+        }
+
+        // Load dark mode preference
+        function loadDarkModePreference() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.dark-mode-toggle').textContent = '☀️';
+            }
+        }
+
+        // Mouse follow glow
+        function setupMouseGlow() {
+            const glow = document.getElementById('mouseGlow');
+            document.addEventListener('mousemove', (e) => {
+                glow.style.left = (e.clientX - 100) + 'px';
+                glow.style.top = (e.clientY - 100) + 'px';
+                glow.style.display = 'block';
+            });
+
+            document.addEventListener('mouseleave', () => {
+                glow.style.display = 'none';
+            });
+        }
+
+        // Animált háttér - lebegő részecskék
+        function createParticles() {
+            const particleCount = 15;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 4 + 2;
+                const startX = Math.random() * window.innerWidth;
+                const startY = Math.random() * window.innerHeight;
+                const duration = Math.random() * 20 + 15;
+                
+                particle.innerHTML = `
+                    <svg width="${size}" height="${size}" viewBox="0 0 10 10">
+                        <circle cx="5" cy="5" r="3" fill="currentColor" color="#667eea"/>
+                    </svg>
+                `;
+                
+                particle.style.left = startX + 'px';
+                particle.style.top = startY + 'px';
+                particle.style.animation = `float ${duration}s linear infinite`;
+                
+                document.body.appendChild(particle);
+            }
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0% {
+                        transform: translateY(0px) translateX(0px);
+                        opacity: 0.5;
+                    }
+                    50% {
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(-${window.innerHeight}px) translateX(${Math.random() * 100 - 50}px);
+                        opacity: 0.5;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Countdown timer
+        function updateCountdown() {
+            const launchDate = new Date('2026-06-01').getTime();
+            const now = new Date().getTime();
+            const distance = launchDate - now;
+
+            if (distance < 0) {
+                document.getElementById('days').textContent = '0';
+                document.getElementById('hours').textContent = '0';
+                document.getElementById('minutes').textContent = '0';
+                document.getElementById('seconds').textContent = '0';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = hours;
+            document.getElementById('minutes').textContent = minutes;
+            document.getElementById('seconds').textContent = seconds;
+        }
+
+        // Animated progress counter
+        function animateProgress() {
+            const targetProgress = 65;
+            let currentProgress = 0;
+            const increment = targetProgress / 50;
+            
+            const interval = setInterval(() => {
+                currentProgress += increment;
+                if (currentProgress >= targetProgress) {
+                    currentProgress = targetProgress;
+                    clearInterval(interval);
+                }
+                document.getElementById('progressNumber').textContent = Math.floor(currentProgress);
+            }, 30);
+        }
+
+        // Confetti effect
+        function triggerConfetti() {
+            const confettiCount = 50;
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe'];
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = confetti.style.width;
+                confetti.style.borderRadius = '50%';
+                
+                document.body.appendChild(confetti);
+                
+                const duration = Math.random() * 2 + 2;
+                const xMove = Math.random() * 300 - 150;
+                
+                confetti.style.animation = `fall ${duration}s linear`;
+                confetti.style.setProperty('--xMove', xMove + 'px');
+                
+                setTimeout(() => confetti.remove(), duration * 1000);
+            }
+        }
+
+        // Add fall animation to style
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                0% {
+                    transform: translateY(0) translateX(0) rotate(0deg);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(${window.innerHeight + 100}px) translateX(var(--xMove)) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Email subscription
+        function subscribeEmail() {
+            const emailInput = document.getElementById('emailInput');
+            const messageDiv = document.getElementById('message');
+            const email = emailInput.value.trim();
+            const t = translations[currentLanguage];
+
+            if (!email) {
+                messageDiv.textContent = t.emailEmpty;
+                messageDiv.className = 'error';
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                messageDiv.textContent = t.emailError;
+                messageDiv.className = 'error';
+                return;
+            }
+
+            messageDiv.textContent = t.emailSuccess;
+            messageDiv.className = 'success';
+            emailInput.value = '';
+            
+            // Trigger confetti
+            triggerConfetti();
+
+            setTimeout(() => {
+                messageDiv.textContent = '';
+            }, 4000);
+        }
+
+        // Scroll to email section
+        function scrollToEmail() {
+            document.getElementById('emailSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Enter key to submit email
+        document.getElementById('emailInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                subscribeEmail();
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadDarkModePreference();
+            setupMouseGlow();
+            createParticles();
+            updateCountdown();
+            animateProgress();
+            updateLanguage();
+            
+            // Set active language button
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="switchLanguage('${currentLanguage}')"]`).classList.add('active');
+            
+            setInterval(updateCountdown, 1000);
+        });
+    </script>
+</body>
+</html>
